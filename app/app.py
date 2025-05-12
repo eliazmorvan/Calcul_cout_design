@@ -39,14 +39,14 @@ def main_generatecost():
     st.title("Calculateur de taux d'encrage")
 
     
-    img_up=st.file_uploader('Image avec design')
+    img_up=st.file_uploader('Uploadez votre image avec design')
 
+    if img_up is not None:
+        res=pourcentage_cmjn(img_up)
 
-    res=pourcentage_cmjn(img_up)
-
-    if st.button("Lancer le calcul"):
-        for couleur, valeur in res.items():
-            st.write(f"{couleur} : {valeur}")
+        if st.button("Lancer le calcul"):
+            for couleur, valeur in res.items():
+                st.write(f"{couleur} : {valeur}")
 
 if __name__ == '__main__':
     # call main function
