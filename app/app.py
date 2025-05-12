@@ -35,20 +35,20 @@ def pourcentage_cmjn(image_path):
 
 
 def main_generatecost():
-    st.markdown("<h1 style='text-align: center; color: #4CAF50;'>🎨 Calculateur de taux d'encrage CMJN</h1>", unsafe_allow_html=True)
+    st.markdown("<h1 style='text-align: center; color: #212121;'>🎨 Calculateur de taux d'encrage CMJN</h1>", unsafe_allow_html=True)
     st.markdown("<p style='text-align: center;'>Uploadez une image pour analyser la proportion de couleurs Cyan, Magenta, Jaune et Noir (CMJN).</p>", unsafe_allow_html=True)
 
     img_up = st.file_uploader('📁 Cliquez pour choisir une image (png, jpg, jpeg)', type=['png', 'jpg', 'jpeg'])
 
     if img_up is not None:
-        st.image(img_up, caption="Image téléchargée", use_column_width=True)
-        if st.button("🧮 Lancer le calcul"):
+         
+        if st.button("Lancer le calcul"):
             with st.spinner("Calcul en cours..."):
                 res = pourcentage_cmjn(img_up)
 
             st.success("✅ Résultat obtenu avec succès !")
             st.markdown("---")
-            st.subheader("📊 Résultats CMJN")
+            st.subheader("Résultats CMJN")
             cols = st.columns(4)
             couleurs = ["Cyan", "Magenta", "Jaune", "Noir"]
             couleurs_hex = ["#00BCD4", "#E91E63", "#FFEB3B", "#212121"]
@@ -56,6 +56,7 @@ def main_generatecost():
             for i, couleur in enumerate(couleurs):
                 with cols[i]:
                     st.markdown(f"<div style='background-color:{couleurs_hex[i]}; padding:10px; border-radius:10px; text-align:center; color:white; font-weight:bold;'>{couleur}<br>{res[couleur]}</div>", unsafe_allow_html=True)
+        st.image(img_up, caption="Image téléchargée")
 
 if __name__ == '__main__':
     main_generatecost()
