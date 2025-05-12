@@ -26,11 +26,13 @@ def pourcentage_cmjn(image_path):
             somme_cmyk += np.array([c, m, y, k])
 
     moyenne_cmyk = somme_cmyk / total_pixels
+    somme_cmyk=np.sum(moyenne_cmyk)
     return dict(
         Cyan=f"{moyenne_cmyk[0]*100:.2f}%",
         Magenta=f"{moyenne_cmyk[1]*100:.2f}%",
         Jaune=f"{moyenne_cmyk[2]*100:.2f}%",
-        Noir=f"{moyenne_cmyk[3]*100:.2f}%"
+        Noir=f"{moyenne_cmyk[3]*100:.2f}%",
+        Total=f"{somme_cmyk*100:.2f}%"
     )
 
 
@@ -56,6 +58,11 @@ def main_generatecost():
             for i, couleur in enumerate(couleurs):
                 with cols[i]:
                     st.markdown(f"<div style='background-color:{couleurs_hex[i]}; padding:10px; border-radius:10px; text-align:center; color:white; font-weight:bold;'>{couleur}<br>{res[couleur]}</div>", unsafe_allow_html=True)
+            st.markdown("### Taux d'encrage total :")
+            st.markdown(
+                f"<div style='background-color:#607D8B; padding:15px; border-radius:10px; text-align:center; color:white; font-size:24px;'>"
+                f"{res['Total']}"
+                f"</div>", unsafe_allow_html=True)
         st.image(img_up, caption="Image téléchargée")
 
 if __name__ == '__main__':
