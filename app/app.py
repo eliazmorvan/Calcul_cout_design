@@ -3,13 +3,13 @@ from PIL import Image
 import numpy as np
 
 def rgb_to_cmyk(r, g, b):
-    r_, g_, b_ = r / 255.0, g / 255.0, b / 255.0
-    k = 1 - max(r_, g_, b_)
+    r_, g_, b_ = 1- r / 255.0, 1- g / 255.0, 1- b / 255.0
+    k = min(r_, g_, b_)
     if k == 1:
         return 0, 0, 0, 1
-    c = (1 - r_ - k) / (1 - k)
-    m = (1 - g_ - k) / (1 - k)
-    y = (1 - b_ - k) / (1 - k)
+    c = (r_ - k) / (1 - k)
+    m = (g_ - k) / (1 - k)
+    y = (b_ - k) / (1 - k)
     return c, m, y, k
 
 def pourcentage_cmjn(image_path):
@@ -35,35 +35,64 @@ def pourcentage_cmjn(image_path):
         Total=f"{somme_cmyk*100:.2f}%"
     )
 
+def analyse_base_blanche(image_file):
+    # Exemple d’analyse spécifique si tu veux traiter la base blanche différemment (ici juste une moyenne d’intensité pour illustrer)
+    image = Image.open(image_file).convert("L")  # niveau de gris
+    pixels = np.array(image)
+    blancheur_moyenne = 1 - (np.mean(pixels) / 255.0)  # plus c’est sombre, plus on imprime en blanc
+    return f"{blancheur_moyenne*100:.2f}%"
 
 def main_generatecost():
-    st.markdown("<h1 style='text-align: center; color: #212121;'>🎨 Calculateur de taux d'encrage CMJN</h1>", unsafe_allow_html=True)
-    st.markdown("<p style='text-align: center;'>Uploadez une image pour analyser la proportion de couleurs Cyan, Magenta, Jaune et Noir (CMJN).</p>", unsafe_allow_html=True)
+    st.markdown("<h1 style='text-align: center; color: #4CAF50;'>🎨 Analyse d’encrage</h1>", unsafe_allow_html=True)
+    st.markdown("<p style='text-align: center;'>Sélectionnez le type de visuel à analyser :</p>", unsafe_allow_html=True)
 
-    img_up = st.file_uploader('📁 Cliquez pour choisir une image (png, jpg, jpeg)', type=['png', 'jpg', 'jpeg'])
+    choix = st.radio("Quel type d’impression souhaitez-vous effectuer ?", [
+        "1 visuel coloré sur textile blanc",
+        "1 visuel coloré sur textile noir",
+        "1 visuel blanc sur textile noir",
+        "1 visuel noir sur textile blanc"
+    ], index=0)
+
+    img_up = st.file_uploader('📁 Uploadez votre image (formats : jpg, jpeg, png)', type=['png', 'jpg', 'jpeg'])
 
     if img_up is not None:
-         
+        
+
         if st.button("Lancer le calcul"):
-            with st.spinner("Calcul en cours..."):
-                res = pourcentage_cmjn(img_up)
-
-            st.success("✅ Résultat obtenu avec succès !")
             st.markdown("---")
-            st.subheader("Résultats CMJN")
-            cols = st.columns(4)
-            couleurs = ["Cyan", "Magenta", "Jaune", "Noir"]
-            couleurs_hex = ["#00BCD4", "#E91E63", "#FFEB3B", "#212121"]
+            if (choix == "1 visuel coloré sur textile blanc") or (choix == "1 visuel noir sur textile blanc"):
+                with st.spinner("Analyse CMJN en cours..."):
+                    res = pourcentage_cmjn(img_up)
 
-            for i, couleur in enumerate(couleurs):
-                with cols[i]:
-                    st.markdown(f"<div style='background-color:{couleurs_hex[i]}; padding:10px; border-radius:10px; text-align:center; color:white; font-weight:bold;'>{couleur}<br>{res[couleur]}</div>", unsafe_allow_html=True)
-            st.markdown("### Taux d'encrage total :")
-            st.markdown(
-                f"<div style='background-color:#607D8B; padding:15px; border-radius:10px; text-align:center; color:white; font-size:24px;'>"
-                f"{res['Total']}"
-                f"</div>", unsafe_allow_html=True)
-        st.image(img_up, caption="Image téléchargée")
+                st.success("✅ Analyse terminée")
+                cols = st.columns(4)
+                couleurs = ["Cyan", "Magenta", "Jaune", "Noir"]
+                couleurs_hex = ["#00BCD4", "#E91E63", "#FFEB3B", "#212121"]
+
+                for i, couleur in enumerate(couleurs):
+                    with cols[i]:
+                        st.markdown(
+                            f"<div style='background-color:{couleurs_hex[i]}; padding:10px; border-radius:10px; text-align:center; color:white; font-weight:bold;'>"
+                            f"{couleur}<br>{res[couleur]}"
+                            f"</div>", unsafe_allow_html=True)
+
+                st.markdown("### Taux d'encrage total :")
+                st.markdown(
+                    f"<div style='background-color:#607D8B; padding:15px; border-radius:10px; text-align:center; color:white; font-size:24px;'>"
+                    f"{res['Total']}"
+                    f"</div>", unsafe_allow_html=True)
+
+            elif choix == "1 visuel blanc sur textile noir":
+                with st.spinner("Analyse de la base blanche en cours..."):
+                    taux_blanc = analyse_base_blanche(img_up)
+
+                st.success("✅ Analyse terminée")
+                st.markdown("### Taux estimé d’encrage blanc :")
+                st.markdown(
+                    f"<div style='background-color:#F5F5F5; padding:15px; border-radius:10px; text-align:center; font-size:24px;'>"
+                    f"{taux_blanc}"
+                    f"</div>", unsafe_allow_html=True)
+            st.image(img_up, caption="Image téléchargée", use_column_width=True)
 
 if __name__ == '__main__':
     main_generatecost()
